@@ -1,7 +1,7 @@
 /*
  * Copyright © 2021 YUMEMI Inc. All rights reserved.
  */
-package jp.co.yumemi.android.code_check
+package jp.co.yumemi.android.codecheck
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -20,24 +20,23 @@ class OneFragment: Fragment(R.layout.fragment_one){
     {
         super.onViewCreated(view, savedInstanceState)
 
-        val _binding= FragmentOneBinding.bind(view)
+        val binding= FragmentOneBinding.bind(view)
 
-        val _viewModel= OneViewModel(context!!)
+        val viewModel= OneViewModel(context!!)
 
-        val _layoutManager= LinearLayoutManager(context!!)
-        val _dividerItemDecoration= DividerItemDecoration(context!!, _layoutManager.orientation)
-        val _adapter= CustomAdapter(object : CustomAdapter.OnItemClickListener{
+        val layoutManager= LinearLayoutManager(context!!)
+        val dividerItemDecoration= DividerItemDecoration(context!!, layoutManager.orientation)
+        val adapter= CustomAdapter(object : CustomAdapter.OnItemClickListener{
             override fun itemClick(item: item){
                 gotoRepositoryFragment(item)
             }
         })
 
-        _binding.searchInputText
-            .setOnEditorActionListener{ editText, action, _ ->
+        binding.searchInputText.setOnEditorActionListener{ editText, action, _ ->
                 if (action== EditorInfo.IME_ACTION_SEARCH){
                     editText.text.toString().let {
-                        _viewModel.searchResults(it).apply{
-                            _adapter.submitList(this)
+                        viewModel.searchResults(it).apply{
+                            adapter.submitList(this)
                         }
                     }
                     return@setOnEditorActionListener true
@@ -45,22 +44,21 @@ class OneFragment: Fragment(R.layout.fragment_one){
                 return@setOnEditorActionListener false
             }
 
-        _binding.recyclerView.also{
-            it.layoutManager= _layoutManager
-            it.addItemDecoration(_dividerItemDecoration)
-            it.adapter= _adapter
+        binding.recyclerView.also{
+            it.layoutManager= layoutManager
+            it.addItemDecoration(dividerItemDecoration)
+            it.adapter= adapter
         }
     }
 
     fun gotoRepositoryFragment(item: item)
     {
-        val _action= OneFragmentDirections
-            .actionRepositoriesFragmentToRepositoryFragment(item= item)
-        findNavController().navigate(_action)
+        val action= OneFragmentDirections.actionRepositoriesFragmentToRepositoryFragment(item= item)
+        findNavController().navigate(action)
     }
 }
 
-val diff_util= object: DiffUtil.ItemCallback<item>(){
+val diffutil= object: DiffUtil.ItemCallback<item>(){
     override fun areItemsTheSame(oldItem: item, newItem: item): Boolean
     {
         return oldItem.name== newItem.name
@@ -75,7 +73,7 @@ val diff_util= object: DiffUtil.ItemCallback<item>(){
 
 class CustomAdapter(
     private val itemClickListener: OnItemClickListener,
-) : ListAdapter<item, CustomAdapter.ViewHolder>(diff_util){
+) : ListAdapter<item, CustomAdapter.ViewHolder>(diffutil){
 
     class ViewHolder(view: View): RecyclerView.ViewHolder(view)
 
@@ -85,19 +83,18 @@ class CustomAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder
     {
-    	val _view= LayoutInflater.from(parent.context)
-            .inflate(R.layout.layout_item, parent, false)
-    	return ViewHolder(_view)
+    	val view= LayoutInflater.from(parent.context).inflate(R.layout.layout_item, parent, false)
+    	return ViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int)
     {
-    	val _item= getItem(position)
+    	val item= getItem(position)
         (holder.itemView.findViewById<View>(R.id.repositoryNameView) as TextView).text=
-            _item.name
+            item.name
 
     	holder.itemView.setOnClickListener{
-     		itemClickListener.itemClick(_item)
+     		itemClickListener.itemClick(item)
     	}
     }
 }
